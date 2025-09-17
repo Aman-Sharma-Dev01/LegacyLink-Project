@@ -2,7 +2,7 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import Cookies from 'js-cookie'
 
-const BASE_URL = 'http://localhost:5001/api'
+const BASE_URL = 'https://legacylink-project.onrender.com/api'
 
 export const api = axios.create({
   baseURL: BASE_URL,
