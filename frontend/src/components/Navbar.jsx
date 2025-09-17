@@ -4,17 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
 import { 
   GraduationCap, 
-  BadgeCheckIcon, 
-  Bell, 
   Search, 
   LogOut, 
-  User, 
-  Settings,
   ChevronDown,
   Menu,
-  BadgeCheck,
   ShieldCheck,
- 
 } from 'lucide-react'
 
 const Navbar = () => {
@@ -61,14 +55,6 @@ const Navbar = () => {
               <Menu className="w-6 h-6" />
             </button>
 
-            {/* Notifications */}
-            {/* <button className="hidden md:flex p-2 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-100 relative">
-              <Bell className="w-6 h-6" />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                3
-              </span>
-            </button> */}
-
             {/* Admin Link */}
             {isAdmin && (
               <Link
@@ -91,7 +77,14 @@ const Navbar = () => {
                   </span>
                 </div>
                 <div className="hidden md:block text-left">
-                  <div className="text-sm font-medium text-gray-900">{user?.name} <span className="text-xs text-gray-500">{user?.isVerified ? <ShieldCheck className="w-4 h-4" /> : 'Unverified'}</span></div>
+                  <div className="flex items-center space-x-1 text-sm font-medium text-gray-900">
+                    <span>{user?.name}</span>
+                    {user?.isVerified ? (
+                      <ShieldCheck className="w-4 h-4 bold text-linkedin-blue" />
+                    ) : (
+                      <span className="text-xs text-gray-500">Unverified</span>
+                    )}
+                  </div>
                   <div className="text-xs text-gray-500">{user?.role}</div>
                 </div>
                 <ChevronDown className="w-4 h-4 text-gray-400" />
@@ -107,29 +100,18 @@ const Navbar = () => {
                     className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border py-1 z-50"
                   >
                     <div className="px-4 py-3 border-b">
-                      <div className="text-sm font-medium text-gray-900">{user?.name} <span className="text-xs text-gray-500">{user?.isVerified ? <ShieldCheck className="w-4 h-4" /> : 'Unverified'}</span></div>
+                      <div className="flex items-center space-x-1 text-sm font-medium text-gray-900">
+                        <span>{user?.name}</span>
+                        {user?.isVerified ? (
+                          <ShieldCheck className="w-4 h-4 bold text-linkedin-blue" />
+                        ) : (
+                          <span className="text-xs text-gray-500">Unverified</span>
+                        )}
+                      </div>
                       <div className="text-sm text-gray-500">{user?.email}</div>
                       <div className="text-xs text-linkedin-blue font-medium">{user?.role}</div>
                     </div>
-                    
-                    {/* <Link
-                      to="/profile"
-                      onClick={() => setShowProfileMenu(false)}
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      <User className="w-4 h-4 mr-2" />
-                      View Profile
-                    </Link> */}
-                    
-                    {/* <Link
-                      to="/settings"
-                      onClick={() => setShowProfileMenu(false)}
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      <Settings className="w-4 h-4 mr-2" />
-                      Settings
-                    </Link> */}
-                    
+
                     <hr className="my-1" />
                     
                     <button
@@ -166,14 +148,6 @@ const Navbar = () => {
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg"
                   />
                 </div>
-                
-                {/* <button className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
-                  <Bell className="w-4 h-4 mr-2" />
-                  Notifications
-                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    3
-                  </span>
-                </button> */}
                 
                 {isAdmin && (
                   <Link
