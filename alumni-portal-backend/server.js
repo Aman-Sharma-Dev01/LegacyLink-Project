@@ -22,7 +22,7 @@ const app = express();
 // ✅ Allow frontend access (React / Vite)
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'https://legacylink-project-glow.vercel.app'],
+    origin: ['http://localhost:3000', 'https://legacy-link-project.vercel.app'],
     credentials: true,
   })
 );
