@@ -4,13 +4,17 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
 import { 
   GraduationCap, 
+  BadgeCheckIcon, 
   Bell, 
   Search, 
   LogOut, 
   User, 
   Settings,
   ChevronDown,
-  Menu
+  Menu,
+  BadgeCheck,
+  ShieldCheck,
+ 
 } from 'lucide-react'
 
 const Navbar = () => {
@@ -30,7 +34,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center space-x-2">
             <GraduationCap className="w-8 h-8 text-linkedin-blue" />
-            <span className="text-xl font-bold text-gray-900 hidden sm:block">Alumni Portal</span>
+            <span className="text-xl font-bold text-gray-900 hidden sm:block">LegacyLink</span>
           </Link>
 
           {/* Search Bar */}
@@ -87,7 +91,7 @@ const Navbar = () => {
                   </span>
                 </div>
                 <div className="hidden md:block text-left">
-                  <div className="text-sm font-medium text-gray-900">{user?.name}</div>
+                  <div className="text-sm font-medium text-gray-900">{user?.name} <span className="text-xs text-gray-500">{user?.isVerified ? <ShieldCheck className="w-4 h-4" /> : 'Unverified'}</span></div>
                   <div className="text-xs text-gray-500">{user?.role}</div>
                 </div>
                 <ChevronDown className="w-4 h-4 text-gray-400" />
@@ -103,7 +107,7 @@ const Navbar = () => {
                     className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border py-1 z-50"
                   >
                     <div className="px-4 py-3 border-b">
-                      <div className="text-sm font-medium text-gray-900">{user?.name}</div>
+                      <div className="text-sm font-medium text-gray-900">{user?.name} <span className="text-xs text-gray-500">{user?.isVerified ? <ShieldCheck className="w-4 h-4" /> : 'Unverified'}</span></div>
                       <div className="text-sm text-gray-500">{user?.email}</div>
                       <div className="text-xs text-linkedin-blue font-medium">{user?.role}</div>
                     </div>

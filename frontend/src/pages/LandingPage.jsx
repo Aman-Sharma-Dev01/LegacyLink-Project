@@ -29,19 +29,19 @@ const LandingPage = () => {
 
   const testimonials = [
     {
-      name: "Sarah Johnson",
+      name: "Aryan Khan",
       role: "Software Engineer at Google",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150",
+      image: "./aryan.jpg",
       quote: "This platform helped me connect with amazing mentors who guided my career path."
     },
     {
-      name: "Michael Chen",
+      name: "Taman Patel",
       role: "Entrepreneur & CEO",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
+      image: "./taman.png",
       quote: "Found incredible talent through the alumni network. It's a game-changer for recruitment."
     },
     {
-      name: "Emily Davis",
+      name: "Akshat Shot",
       role: "Data Scientist",
       image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150",
       quote: "The job board exclusively for alumni gave me access to opportunities I wouldn't find elsewhere."
@@ -61,7 +61,7 @@ const LandingPage = () => {
               transition={{ duration: 0.5 }}
             >
               <GraduationCap className="w-8 h-8 text-linkedin-blue" />
-              <h1 className="text-2xl font-bold text-gray-900">Alumni Portal</h1>
+              <h1 className="text-2xl font-bold text-gray-900">LegacyLink</h1>
             </motion.div>
             
             <motion.div 
@@ -309,7 +309,7 @@ const LandingPage = () => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <GraduationCap className="w-8 h-8 text-linkedin-blue" />
-                <h3 className="text-xl font-bold">Alumni Portal</h3>
+                <h3 className="text-xl font-bold">LegacyLink</h3>
               </div>
               <p className="text-gray-400">
                 Connecting students and alumni for mutual growth and success.
@@ -344,7 +344,7 @@ const LandingPage = () => {
           </div>
           
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 Alumni Portal. All rights reserved.</p>
+            <p>&copy; 2025 LegacyLink. All rights reserved.</p>
           </div>
         </div>
       </footer>
