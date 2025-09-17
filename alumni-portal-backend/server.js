@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
+const cors = require('cors');
 
 // Route files
 const authRoutes = require('./routes/authRoutes');
@@ -17,6 +18,8 @@ dotenv.config();
 connectDB();
 
 const app = express();
+app.use(cors({ origin: 'http://localhost:3000' || 'http://localhost:5173' , credentials: true })); // Add this line
+app.use(express.json());
 
 app.use(express.json()); // To accept JSON data in the body
 
