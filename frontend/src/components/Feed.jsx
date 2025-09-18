@@ -223,8 +223,9 @@ const PostCard = ({ post, currentUser, onLike, onComment, onDelete }) => {
             <div className="font-semibold text-gray-900">
               {post.user?.name || 'Alumni'}
             </div>
-            <div className="text-sm text-gray-500">
-              {new Date(post.createdAt).toLocaleDateString()}
+            <div className="text-sm text-gray-500"> <span className=' font-medium text-xs'>  
+              {`Batch: ${post.user.profile?.graduationYear || 'Unknown Year'}`} </span>
+              {` - ${new Date(post.createdAt).toLocaleDateString()}`}
             </div>
           </div>
         </div>
