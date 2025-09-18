@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { API_URL } from "../services/api";
 
 function Chat() {
   const [messages, setMessages] = useState([]);
@@ -14,7 +15,7 @@ function Chat() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5001/api/chat", {
+      const res = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: input }),
