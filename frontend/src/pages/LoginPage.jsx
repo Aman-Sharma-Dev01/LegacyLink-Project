@@ -1,49 +1,50 @@
-import React, { useState } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Eye, EyeOff, Mail, Lock, GraduationCap } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
-import { authAPI } from '../services/api'
-import toast from 'react-hot-toast'
+import React, { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Eye, EyeOff, Mail, Lock, GraduationCap, Info } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { authAPI } from '../services/api';
+import toast from 'react-hot-toast';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
-  })
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { login } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   
-  const from = location.state?.from?.pathname || '/dashboard'
+  const from = location.state?.from?.pathname || '/dashboard';
 
   const handleChange = (e) => {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      const response = await authAPI.login(formData)
-      const { token, ...userData } = response.data
+      const response = await authAPI.login(formData);
+      const { token, ...userData } = response.data;
       
-      login(userData, token)
-      toast.success('Welcome back!')
-      navigate(from, { replace: true })
+      login(userData, token);
+      toast.success('Welcome back!');
+      navigate(from, { replace: true });
     } catch (error) {
-      console.error('Login error:', error)
+      console.error('Login error:', error);
+      toast.error(error.response?.data?.message || 'Login failed. Please check your credentials.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -64,6 +65,32 @@ const LoginPage = () => {
             <p className="text-gray-600">Sign in to your account to continue</p>
           </div>
 
+          {/* ============== START: Corrected Credentials Box ============== */}
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-md shadow-sm">
+            <div className="flex items-center">
+                <Info className="w-6 h-6 mr-3" />
+                <h3 className="text-md font-bold">Demo Credentials</h3>
+            </div>
+            <div className="mt-2 grid md:grid-cols-3 gap-4 text-sm">
+                <div>
+                    <p className="font-semibold">Student Account:</p>
+                    <p><strong>Email:</strong> <code>student@gmail.com</code></p>
+                    <p><strong>Password:</strong> <code>student@gmail.com</code></p>
+                </div>
+                <div>
+                    <p className="font-semibold">Alumni Account:</p>
+                    <p><strong>Email:</strong> <code>sanchit@gmail.com</code></p>
+                    <p><strong>Password:</strong> <code>sanchit@gmail.com</code></p>
+                </div>
+                <div>
+                    <p className="font-semibold">Admin Account:</p>
+                    <p><strong>Email:</strong> <code>admin@gmail.com</code></p>
+                    <p><strong>Password:</strong> <code>qwerty</code></p>
+                </div>
+            </div>
+          </div>
+          {/* ============== END: Corrected Credentials Box ============== */}
+
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -78,6 +105,7 @@ const LoginPage = () => {
                   name="email"
                   type="email"
                   required
+                  autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
                   className="input-field pl-10"
@@ -99,6 +127,7 @@ const LoginPage = () => {
                   name="password"
                   type={showPassword ? 'text' : 'password'}
                   required
+                  autoComplete="current-password"
                   value={formData.password}
                   onChange={handleChange}
                   className="input-field pl-10 pr-10"
@@ -106,6 +135,7 @@ const LoginPage = () => {
                 />
                 <button
                   type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowPassword(!showPassword)}
                 >
@@ -203,4 +233,4 @@ const LoginPage = () => {
   )
 }
 
-export default LoginPage
+export default LoginPage;
