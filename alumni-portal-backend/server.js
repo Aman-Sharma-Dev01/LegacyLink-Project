@@ -36,13 +36,21 @@ const server = http.createServer(app);
 
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://legacy-link-project.vercel.app'],
+  origin: [
+    'http://localhost:3000', 
+    'http://localhost:5173', 
+    'https://legacy-link-project.vercel.app',
+    'https://legacy-link-project-git-main.vercel.app',
+    /\.vercel\.app$/
+  ],
   credentials: true,
 };
 
-// Initialize Socket.io
+// Initialize Socket.io with ping settings for production
 const io = new Server(server, {
   cors: corsOptions,
+  pingTimeout: 60000,
+  pingInterval: 25000,
 });
 initializeSocket(io);
 

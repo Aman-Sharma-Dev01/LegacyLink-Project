@@ -5,6 +5,9 @@ import { useAuth } from './AuthContext';
 
 const SocketContext = createContext(null);
 
+// Use the same base URL as the API
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://legacylink-06oy.onrender.com';
+
 export const useSocket = () => {
   const context = useContext(SocketContext);
   if (!context) {
@@ -25,6 +28,7 @@ export const SocketProvider = ({ children }) => {
         socket.disconnect();
         setSocket(null);
         setIsConnected(false);
+        setOnlineUsers(new Set());
       }
       return;
     }
@@ -33,18 +37,21 @@ export const SocketProvider = ({ children }) => {
     if (!token) return;
 
     // Connect to socket server
-    const socketInstance = io('http://localhost:5000', {
+    const socketInstance = io(SOCKET_URL, {
       auth: { token },
       transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
     socketInstance.on('connect', () => {
-      console.log('Socket connected');
+      console.log('Socket connected:', socketInstance.id);
       setIsConnected(true);
     });
 
-    socketInstance.on('disconnect', () => {
-      console.log('Socket disconnected');
+    socketInstance.on('disconnect', (reason) => {
+      console.log('Socket disconnected:', reason);
       setIsConnected(false);
     });
 
@@ -53,12 +60,20 @@ export const SocketProvider = ({ children }) => {
       setIsConnected(false);
     });
 
+    // Receive initial list of online users upon connection
+    socketInstance.on('onlineUsersList', ({ users }) => {
+      console.log('Received online users list:', users);
+      setOnlineUsers(new Set(users));
+    });
+
     // Track online users
     socketInstance.on('userOnline', ({ userId }) => {
+      console.log('User came online:', userId);
       setOnlineUsers(prev => new Set([...prev, userId]));
     });
 
     socketInstance.on('userOffline', ({ userId }) => {
+      console.log('User went offline:', userId);
       setOnlineUsers(prev => {
         const next = new Set(prev);
         next.delete(userId);
@@ -71,7 +86,7 @@ export const SocketProvider = ({ children }) => {
     return () => {
       socketInstance.disconnect();
     };
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user?._id]);
 
   // Join a conversation room
   const joinConversation = useCallback((conversationId) => {
@@ -94,6 +109,13 @@ export const SocketProvider = ({ children }) => {
     }
   }, [socket, isConnected]);
 
+  // Send real-time message notification
+  const emitMessage = useCallback((conversationId, message) => {
+    if (socket && isConnected) {
+      socket.emit('sendMessage', { conversationId, message });
+    }
+  }, [socket, isConnected]);
+
   // Check if user is online
   const isUserOnline = useCallback((userId) => {
     return onlineUsers.has(userId);
@@ -104,6 +126,9 @@ export const SocketProvider = ({ children }) => {
     return new Promise((resolve) => {
       if (socket && isConnected) {
         socket.emit('getOnlineUsers', userIds, (status) => {
+          // Update local state with fetched status
+          const online = Object.entries(status).filter(([_, isOnline]) => isOnline).map(([id]) => id);
+          setOnlineUsers(prev => new Set([...prev, ...online]));
           resolve(status);
         });
       } else {
@@ -119,6 +144,7 @@ export const SocketProvider = ({ children }) => {
     joinConversation,
     leaveConversation,
     sendTyping,
+    emitMessage,
     isUserOnline,
     getOnlineStatus,
   };

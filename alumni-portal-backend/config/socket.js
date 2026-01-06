@@ -46,8 +46,12 @@ const initializeSocket = (io) => {
       },
     });
 
-    // Broadcast online status to connections
-    socket.broadcast.emit('userOnline', { userId });
+    // Broadcast online status to ALL connected clients
+    io.emit('userOnline', { userId });
+
+    // Send current online users list to the newly connected user
+    const onlineUserIds = Array.from(onlineUsers.keys());
+    socket.emit('onlineUsersList', { users: onlineUserIds });
 
     // Join conversation rooms
     socket.on('joinConversation', (conversationId) => {

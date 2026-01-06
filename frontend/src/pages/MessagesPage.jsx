@@ -35,12 +35,26 @@ const MessagesPage = () => {
   const typingTimeoutRef = useRef(null);
 
   const { user } = useAuth();
-  const { socket, isConnected, joinConversation, leaveConversation, sendTyping, isUserOnline } = useSocket();
+  const { socket, isConnected, joinConversation, leaveConversation, sendTyping, emitMessage, isUserOnline, getOnlineStatus } = useSocket();
 
   // Fetch conversations on mount
   useEffect(() => {
     fetchConversations();
   }, []);
+
+  // Fetch online status for all conversation participants
+  useEffect(() => {
+    if (conversations.length > 0 && isConnected) {
+      const userIds = conversations.map(conv => {
+        const other = conv.otherParticipant || conv.participants?.find(p => p._id !== user._id);
+        return other?._id;
+      }).filter(Boolean);
+      
+      if (userIds.length > 0) {
+        getOnlineStatus(userIds);
+      }
+    }
+  }, [conversations, isConnected, getOnlineStatus, user._id]);
 
   // Handle URL param for opening chat with specific user
   useEffect(() => {
@@ -195,6 +209,9 @@ const MessagesPage = () => {
       setMessages(prev =>
         prev.map(m => (m._id === optimisticMessage._id ? data.message : m))
       );
+
+      // Emit message through socket for real-time delivery to other user
+      emitMessage(activeConversation._id, data.message);
 
       // Update conversation list
       setConversations(prev =>
