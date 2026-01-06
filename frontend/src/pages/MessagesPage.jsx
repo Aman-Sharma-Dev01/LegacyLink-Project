@@ -35,7 +35,7 @@ const MessagesPage = () => {
   const typingTimeoutRef = useRef(null);
 
   const { user } = useAuth();
-  const { socket, isConnected, joinConversation, leaveConversation, sendTyping, emitMessage, isUserOnline, getOnlineStatus } = useSocket();
+  const { socket, isConnected, joinConversation, leaveConversation, sendTyping, isUserOnline, getOnlineStatus } = useSocket();
 
   // Fetch conversations on mount
   useEffect(() => {
@@ -210,8 +210,7 @@ const MessagesPage = () => {
         prev.map(m => (m._id === optimisticMessage._id ? data.message : m))
       );
 
-      // Emit message through socket for real-time delivery to other user
-      emitMessage(activeConversation._id, data.message);
+      // Note: Backend already emits the message via socket, no need to emit from frontend
 
       // Update conversation list
       setConversations(prev =>
