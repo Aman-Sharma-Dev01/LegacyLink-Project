@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Mail, Lock, GraduationCap, Info } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, GraduationCap } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { authAPI } from '../services/api';
 import toast from 'react-hot-toast';
@@ -47,9 +47,9 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex dark:bg-slate-900 transition-colors">
       {/* Left Side - Form */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-800">
         <motion.div 
           className="max-w-md w-full space-y-8"
           initial={{ opacity: 0, x: -20 }}
@@ -59,37 +59,11 @@ const LoginPage = () => {
           <div className="text-center">
             <Link to="/" className="flex items-center justify-center space-x-2 mb-6">
               <GraduationCap className="w-10 h-10 text-linkedin-blue" />
-              <span className="text-2xl font-bold text-gray-900">Alumni Portal</span>
+              <span className="text-2xl font-bold text-gray-900 dark:text-white">Alumni Portal</span>
             </Link>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-            <p className="text-gray-600">Sign in to your account to continue</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h2>
+            <p className="text-gray-600 dark:text-slate-400">Sign in to your account to continue</p>
           </div>
-
-          {/* ============== START: Corrected Credentials Box ============== */}
-          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-md shadow-sm">
-            <div className="flex items-center">
-                <Info className="w-6 h-6 mr-3" />
-                <h3 className="text-md font-bold">Demo Credentials</h3>
-            </div>
-            <div className="mt-2 grid md:grid-cols-3 gap-4 text-sm">
-                <div>
-                    <p className="font-semibold">Student Account:</p>
-                    <p><strong>Email:</strong> <code>student@gmail.com</code></p>
-                    <p><strong>Password:</strong> <code>student@gmail.com</code></p>
-                </div>
-                <div>
-                    <p className="font-semibold">Alumni Account:</p>
-                    <p><strong>Email:</strong> <code>sanchit@gmail.com</code></p>
-                    <p><strong>Password:</strong> <code>sanchit@gmail.com</code></p>
-                </div>
-                <div>
-                    <p className="font-semibold">Admin Account:</p>
-                    <p><strong>Email:</strong> <code>admin@gmail.com</code></p>
-                    <p><strong>Password:</strong> <code>qwerty</code></p>
-                </div>
-            </div>
-          </div>
-          {/* ============== END: Corrected Credentials Box ============== */}
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>

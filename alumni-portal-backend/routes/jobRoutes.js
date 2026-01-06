@@ -2,16 +2,17 @@ const express = require('express');
 const router = express.Router();
 const { createJob, getAllJobs, deleteJob } = require('../controllers/jobController');
 const { protect, isAlumni } = require('../middleware/authMiddleware');
+const { validateJob, validatePagination, validateMongoId } = require('../middleware/validators');
 
 // @route   /api/jobs
 router
   .route('/')
-  .post(protect, isAlumni, createJob) // Alumni can create jobs
-  .get(protect, getAllJobs); // Any logged-in user can view jobs
+  .post(protect, isAlumni, validateJob, createJob)
+  .get(protect, validatePagination, getAllJobs);
 
 // @route   /api/jobs/:id
 router
   .route('/:id')
-  .delete(protect, isAlumni, deleteJob); // Only the alumni who posted can delete
+  .delete(protect, isAlumni, validateMongoId, deleteJob);
 
 module.exports = router;

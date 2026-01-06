@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { userAPI, postsAPI } from '../services/api';
+import { userAPI, postsAPI, uploadAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import { 
@@ -14,7 +14,9 @@ import {
   Calendar, 
   Heart, 
   Trash2, 
-  Send 
+  Send,
+  Camera,
+  Loader2
 } from 'lucide-react';
 
 // Main Profile Component
@@ -25,6 +27,8 @@ const Profile = () => {
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
   const [activeTab, setActiveTab] = useState('about');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -51,6 +55,41 @@ const Profile = () => {
     };
     fetchProfile();
   }, []);
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setUploadingPhoto(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const { data } = await uploadAPI.profilePicture(formData);
+      
+      setProfileUser(prev => ({
+        ...prev,
+        profile: {
+          ...prev.profile,
+          profilePicture: data.profilePicture
+        }
+      }));
+      toast.success('Profile picture updated!');
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -93,11 +132,40 @@ const Profile = () => {
       <div className="bg-white rounded-xl shadow-md p-6">
         <div className="flex justify-between items-start">
           <div className="flex flex-col sm:flex-row items-start gap-5">
-            <img
-              src={`https://ui-avatars.com/api/?name=${profileUser.name}&background=0D6EFD&color=fff&size=128`}
-              alt="Profile"
-              className="w-24 h-24 rounded-full border-4 border-gray-100 shadow-sm"
-            />
+            {/* Profile Picture with Upload */}
+            <div className="relative group">
+              {profileUser.profile?.profilePicture && profileUser.profile.profilePicture !== 'default_avatar.png' ? (
+                <img
+                  src={profileUser.profile.profilePicture}
+                  alt="Profile"
+                  className="w-24 h-24 rounded-full border-4 border-gray-100 shadow-sm object-cover"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold border-4 border-gray-100 shadow-sm">
+                  {profileUser.name?.charAt(0)?.toUpperCase()}
+                </div>
+              )}
+              
+              {/* Upload overlay */}
+              <button
+                onClick={() => photoInputRef.current?.click()}
+                disabled={uploadingPhoto}
+                className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              >
+                {uploadingPhoto ? (
+                  <Loader2 className="w-6 h-6 text-white animate-spin" />
+                ) : (
+                  <Camera className="w-6 h-6 text-white" />
+                )}
+              </button>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                ref={photoInputRef}
+                className="hidden"
+              />
+            </div>
             <div className="mt-2">
               <h1 className="text-3xl font-bold text-gray-900">{profileUser.name}</h1>
               <p className="text-gray-600">{profileUser.profile.headline || 'No headline'}</p>

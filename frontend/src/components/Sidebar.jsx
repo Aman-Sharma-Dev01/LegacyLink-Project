@@ -6,7 +6,7 @@ const Sidebar = ({ activeTab, setActiveTab, tabs }) => {
   const { user } = useAuth()
 
   return (
-    <aside className="fixed left-0 top-16 h-full w-64 bg-white shadow-sm border-r z-30 hidden lg:block">
+    <aside className="fixed left-0 top-16 h-full w-64 bg-white dark:bg-slate-800 shadow-sm border-r dark:border-slate-700 z-30 hidden lg:block transition-colors">
       <div className="p-6">
         {/* User Info Card */}
         <motion.div 
@@ -39,7 +39,7 @@ const Sidebar = ({ activeTab, setActiveTab, tabs }) => {
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                 activeTab === tab.id
                   ? 'bg-linkedin-blue text-white shadow-lg'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  : 'text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'
               }`}
             >
               {tab.icon}

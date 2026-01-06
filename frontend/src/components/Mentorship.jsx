@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 // --- CHANGED: Import both userAPI and mentorshipAPI ---
 import { mentorshipAPI, userAPI } from '../services/api' 
@@ -241,6 +242,8 @@ const Mentorship = () => {
 }
 
 const MentorshipCard = ({ request, currentUser, onRespond }) => {
+  const navigate = useNavigate()
+  
   const getStatusClasses = (status) => {
     switch (status) {
       case 'Pending': return 'bg-yellow-100 text-yellow-800';
@@ -256,8 +259,18 @@ const MentorshipCard = ({ request, currentUser, onRespond }) => {
   }
 
 const alumniId = typeof request.alumni === 'string' ? request.alumni : request.alumni?._id;
+const studentId = typeof request.student === 'string' ? request.student : request.student?._id;
 const isAlumniRecipient = currentUser?._id === alumniId;
 const canRespond = isAlumniRecipient && request.status === 'Pending';
+
+  // Get the other user's ID for messaging
+  const otherUserId = isAlumniRecipient ? studentId : alumniId;
+
+  const handleMessage = () => {
+    if (otherUserId) {
+      navigate(`/messages?user=${otherUserId}`)
+    }
+  }
 
 
   return (
@@ -318,7 +331,10 @@ const canRespond = isAlumniRecipient && request.status === 'Pending';
             <p className="text-sm text-green-700">
               <strong>Mentorship Active!</strong> You can now connect directly.
             </p>
-            <button className="btn-secondary text-sm flex items-center gap-2">
+            <button 
+              onClick={handleMessage}
+              className="btn-secondary text-sm flex items-center gap-2"
+            >
               <MessageSquare className="w-4 h-4" />
               <span>Message</span>
             </button>
@@ -343,8 +359,10 @@ const RequestMentorshipModal = ({ onClose, onSuccess }) => {
       setIsFetchingAlumni(true);
       try {
         const response = await userAPI.getAlumni();
+        // Handle both array response and paginated response
+        const alumniData = Array.isArray(response.data) ? response.data : (response.data.users || []);
         // Add placeholder expertise for UI richness, as the backend doesn't provide it.
-        const alumniWithDetails = response.data.map(a => ({
+        const alumniWithDetails = alumniData.map(a => ({
           ...a,
           expertise: ['Leadership', 'Software', 'Product Management'].slice(0, Math.floor(Math.random() * 2) + 1),
         }));

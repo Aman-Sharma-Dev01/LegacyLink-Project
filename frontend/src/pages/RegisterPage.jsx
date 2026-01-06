@@ -61,7 +61,7 @@ const RegisterPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex dark:bg-slate-900 transition-colors">
       {/* Left Side - Image/Graphics */}
       <motion.div 
         className="hidden lg:flex flex-1 bg-gradient-to-br from-linkedin-blue to-linkedin-darkblue items-center justify-center p-12"
@@ -102,7 +102,7 @@ const RegisterPage = () => {
       </motion.div>
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-800">
         <motion.div 
           className="max-w-md w-full space-y-8"
           initial={{ opacity: 0, x: 20 }}
@@ -112,7 +112,7 @@ const RegisterPage = () => {
           <div className="text-center">
             <Link to="/" className="flex items-center justify-center space-x-2 mb-6">
               <GraduationCap className="w-10 h-10 text-linkedin-blue" />
-              <span className="text-2xl font-bold text-gray-900">LegacyLink</span>
+              <span className="text-2xl font-bold text-gray-900 dark:text-white">LegacyLink</span>
             </Link>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
             <p className="text-gray-600">Join our community of students and alumni</p>

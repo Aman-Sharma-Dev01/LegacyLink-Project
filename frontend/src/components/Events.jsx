@@ -17,7 +17,9 @@ const Events = () => {
     setLoading(true)
     try {
       const response = await eventAPI.getAll()
-      setEvents(response.data)
+      // Handle both array response and paginated response
+      const eventsData = Array.isArray(response.data) ? response.data : (response.data.events || [])
+      setEvents(eventsData)
     } catch (err) {
       console.error('Error fetching events:', err)
     } finally {

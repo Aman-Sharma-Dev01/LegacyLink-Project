@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -23,6 +24,14 @@ export default {
           blue: '#0077b5',
           lightblue: '#004182',
           darkblue: '#003d82'
+        },
+        // Dark mode specific colors
+        dark: {
+          bg: '#0f172a',
+          card: '#1e293b',
+          border: '#334155',
+          text: '#e2e8f0',
+          muted: '#94a3b8',
         }
       },
       animation: {

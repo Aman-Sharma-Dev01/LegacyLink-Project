@@ -13,12 +13,16 @@ const userSchema = mongoose.Schema(
       default: 'Student',
     },
     isVerified: { type: Boolean, default: false }, // Verified by Institute Admin
+    // Password reset fields
+    resetPasswordToken: { type: String },
+    resetPasswordExpire: { type: Date },
     // Profile specific data
     profile: {
         headline: { type: String, default: '' },
         bio: { type: String, default: '' },
         profilePicture: { type: String, default: 'default_avatar.png' },
         location: { type: String, default: '' },
+        skills: [{ type: String }],
         // Alumni specific
         graduationYear: { type: Number },
         company: { type: String },

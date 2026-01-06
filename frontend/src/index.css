@@ -12,6 +12,18 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: #f3f2ef;
   line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode body */
+.dark body,
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 @layer components {
@@ -20,15 +32,19 @@ body {
   }
   
   .btn-secondary {
-    @apply bg-white hover:bg-gray-50 text-linkedin-blue border-2 border-linkedin-blue font-semibold py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg;
+    @apply bg-white hover:bg-gray-50 text-linkedin-blue border-2 border-linkedin-blue font-semibold py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg dark:bg-slate-800 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-slate-700;
+  }
+
+  .btn-danger {
+    @apply bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300;
   }
   
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300;
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300 dark:bg-slate-800 dark:border-slate-700;
   }
   
   .input-field {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-linkedin-blue focus:border-transparent transition-all duration-300 outline-none;
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-linkedin-blue focus:border-transparent transition-all duration-300 outline-none dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:placeholder-slate-400;
   }
   
   .gradient-bg {
@@ -38,6 +54,23 @@ body {
   .glass-effect {
     backdrop-filter: blur(10px);
     background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Dark mode specific classes */
+  .dark-card {
+    @apply dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200;
+  }
+
+  .dark-text {
+    @apply dark:text-slate-200;
+  }
+
+  .dark-muted {
+    @apply dark:text-slate-400;
+  }
+
+  .dark-bg {
+    @apply dark:bg-slate-900;
   }
 }
 
@@ -57,4 +90,9 @@ body {
 .hover-lift:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode hover */
+.dark .hover-lift:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }

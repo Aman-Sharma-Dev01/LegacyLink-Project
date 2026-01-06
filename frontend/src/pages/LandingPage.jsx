@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Users, Briefcase, MessageCircle, Star, ArrowRight, GraduationCap, Info } from 'lucide-react';
+import { Users, Briefcase, MessageCircle, Star, ArrowRight, GraduationCap } from 'lucide-react';
 
 const LandingPage = () => {
   const features = [
@@ -49,9 +49,9 @@ const LandingPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
       {/* Navigation */}
-      <nav className="bg-white shadow-sm sticky top-0 z-50">
+      <nav className="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <motion.div
@@ -61,7 +61,7 @@ const LandingPage = () => {
               transition={{ duration: 0.5 }}
             >
               <GraduationCap className="w-8 h-8 text-linkedin-blue" />
-              <h1 className="text-2xl font-bold text-gray-900">LegacyLink</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">LegacyLink</h1>
             </motion.div>
 
             <motion.div
@@ -80,33 +80,6 @@ const LandingPage = () => {
           </div>
         </div>
       </nav>
-
-      {/* ============== START: Dummy Credentials for Judges ============== */}
-      <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 max-w-7xl mx-auto mt-4 rounded-md shadow-md">
-        <div className="flex items-center">
-            <Info className="w-6 h-6 mr-3" />
-            <h3 className="text-lg font-bold">Demo Credentials for Judging</h3>
-        </div>
-        <div className="mt-2 grid md:grid-cols-3 gap-4 text-sm">
-            <div>
-                <p className="font-semibold">Student Account:</p>
-                <p><strong>Email:</strong> <code>student@gmail.com</code></p>
-                <p><strong>Password:</strong> <code>student@gmail.com</code></p>
-            </div>
-            <div>
-                <p className="font-semibold">Alumni Account:</p>
-                <p><strong>Email:</strong> <code>sanchit@gmail.com</code></p>
-                <p><strong>Password:</strong> <code>sanchit@gmail.com</code></p>
-            </div>
-            <div>
-                <p className="font-semibold">Institute Admin Account:</p>
-                <p><strong>Email:</strong> <code>admin@gmail.com</code></p>
-                <p><strong>Password:</strong> <code>qwerty</code></p>
-            </div>
-        </div>
-      </div>
-      {/* ============== END: Dummy Credentials for Judges ============== */}
-
 
       {/* Hero Section */}
       <section className="gradient-bg text-white py-20">

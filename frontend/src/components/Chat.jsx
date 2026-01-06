@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { API_URL } from "../services/api";
+import { chatAPI } from "../services/api";
 
 function Chat() {
   const [messages, setMessages] = useState([]);
@@ -15,19 +15,13 @@ function Chat() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
-      });
-
-      const data = await res.json();
-      setMessages([...newMessages, { role: "assistant", content: data.reply }]);
+      const response = await chatAPI.sendMessage(input);
+      setMessages([...newMessages, { role: "assistant", content: response.data.reply }]);
     } catch (err) {
       console.error("Error:", err);
       setMessages([
         ...newMessages,
-        { role: "assistant", content: "⚠️ Something went wrong" },
+        { role: "assistant", content: "⚠️ Something went wrong. Please try again." },
       ]);
     } finally {
       setLoading(false);
@@ -37,6 +31,11 @@ function Chat() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto p-2 bg-gray-100 rounded">
+        {messages.length === 0 && (
+          <p className="text-gray-500 text-center text-sm mt-4">
+            👋 Hi! Ask me anything about the alumni network.
+          </p>
+        )}
         {messages.map((m, i) => (
           <div
             key={i}
@@ -56,13 +55,16 @@ function Chat() {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type..."
-          className="flex-1 border rounded-lg p-2"
+          placeholder="Type a message..."
+          className="flex-1 border rounded-lg p-2 text-sm"
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          disabled={loading}
         />
         <button
           onClick={sendMessage}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          disabled={loading || !input.trim()}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Send message"
         >
           ➤
         </button>

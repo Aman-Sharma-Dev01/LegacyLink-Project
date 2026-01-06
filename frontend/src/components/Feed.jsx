@@ -1,46 +1,131 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
-import { postsAPI } from '../services/api'
-import { Heart, MessageCircle, Share2, Send, MoreHorizontal, Trash2 } from 'lucide-react'
+import { postsAPI, uploadAPI } from '../services/api'
+import { Heart, MessageCircle, Share2, Send, MoreHorizontal, Trash2, Loader2, Image, X, Edit2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const Feed = () => {
   const [posts, setPosts] = useState([])
   const [newPost, setNewPost] = useState('')
+  const [postImage, setPostImage] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
   const [loading, setLoading] = useState(true)
   const [posting, setPosting] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [pagination, setPagination] = useState({ page: 1, hasMore: true })
+  const fileInputRef = useRef(null)
   const { user, isAlumni } = useAuth()
 
   useEffect(() => {
     fetchPosts()
   }, [])
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (page = 1) => {
     try {
-      const response = await postsAPI.getAll()
-      setPosts(response.data)
+      if (page === 1) setLoading(true)
+      else setLoadingMore(true)
+      
+      const response = await postsAPI.getAll({ page, limit: 10 })
+      const { posts: newPosts, pagination: paginationData } = response.data
+      
+      if (page === 1) {
+        setPosts(newPosts)
+      } else {
+        setPosts(prev => [...prev, ...newPosts])
+      }
+      setPagination({
+        page: paginationData.page,
+        hasMore: paginationData.hasMore
+      })
     } catch (error) {
       console.error('Error fetching posts:', error)
     } finally {
       setLoading(false)
+      setLoadingMore(false)
+    }
+  }
+
+  const loadMore = () => {
+    if (!loadingMore && pagination.hasMore) {
+      fetchPosts(pagination.page + 1)
+    }
+  }
+
+  const handleImageSelect = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file')
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB')
+      return
+    }
+
+    // Show preview
+    const reader = new FileReader()
+    reader.onload = (e) => setImagePreview(e.target.result)
+    reader.readAsDataURL(file)
+
+    // Upload to cloudinary
+    setUploadingImage(true)
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+      const { data } = await uploadAPI.postImage(formData)
+      setPostImage(data.imageUrl)
+      toast.success('Image uploaded!')
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      setImagePreview(null)
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  const removeImage = () => {
+    setPostImage(null)
+    setImagePreview(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
     }
   }
 
   const handleCreatePost = async (e) => {
     e.preventDefault()
-    if (!newPost.trim()) return
+    if (!newPost.trim() && !postImage) return
 
     setPosting(true)
     try {
-      const response = await postsAPI.create({ text: newPost })
+      const response = await postsAPI.create({ 
+        text: newPost,
+        image: postImage 
+      })
       setPosts([response.data, ...posts])
       setNewPost('')
+      setPostImage(null)
+      setImagePreview(null)
+      if (fileInputRef.current) fileInputRef.current.value = ''
       toast.success('Post created successfully!')
     } catch (error) {
       console.error('Error creating post:', error)
     } finally {
       setPosting(false)
+    }
+  }
+
+  const handleEditPost = async (postId, text, image) => {
+    try {
+      const { data } = await postsAPI.update(postId, { text, image })
+      setPosts(posts.map(post => post._id === postId ? data : post))
+      toast.success('Post updated!')
+    } catch (error) {
+      console.error('Error updating post:', error)
     }
   }
 
@@ -67,7 +152,19 @@ const Feed = () => {
   const handleComment = async (postId, commentText) => {
     try {
       await postsAPI.comment(postId, { text: commentText })
-      fetchPosts() // Refresh to get updated comments
+      // Update the post with new comment locally instead of refetching all
+      setPosts(posts.map(post => {
+        if (post._id === postId) {
+          return {
+            ...post,
+            comments: [
+              { text: commentText, user: user._id, name: user.name, _id: Date.now() },
+              ...post.comments
+            ]
+          }
+        }
+        return post
+      }))
       toast.success('Comment added!')
     } catch (error) {
       console.error('Error adding comment:', error)
@@ -136,13 +233,54 @@ const Feed = () => {
                   className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-linkedin-blue focus:border-transparent"
                   rows={3}
                 />
+                
+                {/* Image Preview */}
+                {imagePreview && (
+                  <div className="relative mt-3 inline-block">
+                    <img 
+                      src={imagePreview} 
+                      alt="Preview" 
+                      className="max-h-48 rounded-lg object-cover"
+                    />
+                    {uploadingImage && (
+                      <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
+                        <Loader2 className="w-8 h-8 text-white animate-spin" />
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={removeImage}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center mt-3">
-                  <div className="text-sm text-gray-500">
-                    {newPost.length}/280 characters
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      ref={fileInputRef}
+                      className="hidden"
+                      id="post-image-input"
+                    />
+                    <label
+                      htmlFor="post-image-input"
+                      className="flex items-center space-x-1 px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors"
+                    >
+                      <Image className="w-5 h-5" />
+                      <span className="text-sm">Photo</span>
+                    </label>
+                    <span className="text-sm text-gray-500">
+                      {newPost.length}/280
+                    </span>
                   </div>
                   <button
                     type="submit"
-                    disabled={!newPost.trim() || posting}
+                    disabled={(!newPost.trim() && !postImage) || posting || uploadingImage}
                     className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                   >
                     <Send className="w-4 h-4" />
@@ -166,10 +304,31 @@ const Feed = () => {
               onLike={handleLike}
               onComment={handleComment}
               onDelete={handleDeletePost}
+              onEdit={handleEditPost}
             />
           ))}
         </AnimatePresence>
       </div>
+
+      {/* Load More Button */}
+      {pagination.hasMore && posts.length > 0 && (
+        <div className="text-center py-4">
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="btn-secondary px-6 py-2 disabled:opacity-50"
+          >
+            {loadingMore ? (
+              <span className="flex items-center justify-center">
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Loading...
+              </span>
+            ) : (
+              'Load More Posts'
+            )}
+          </button>
+        </div>
+      )}
 
       {posts.length === 0 && (
         <div className="text-center py-12">
@@ -186,13 +345,16 @@ const Feed = () => {
   )
 }
 
-const PostCard = ({ post, currentUser, onLike, onComment, onDelete }) => {
+const PostCard = ({ post, currentUser, onLike, onComment, onDelete, onEdit }) => {
   const [showComments, setShowComments] = useState(false)
   const [commentText, setCommentText] = useState('')
   const [showMenu, setShowMenu] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editText, setEditText] = useState(post.text)
   
   const isLiked = post.likes.includes(currentUser._id)
   const canDelete = post.user?._id === currentUser._id || currentUser.role === 'Institute_Admin';
+  const canEdit = post.user?._id === currentUser._id;
 
 
   const handleCommentSubmit = (e) => {
@@ -201,6 +363,12 @@ const PostCard = ({ post, currentUser, onLike, onComment, onDelete }) => {
     
     onComment(post._id, commentText)
     setCommentText('')
+  }
+
+  const handleEditSubmit = () => {
+    if (!editText.trim()) return
+    onEdit(post._id, editText, post.image)
+    setIsEditing(false)
   }
 
   return (
@@ -230,7 +398,7 @@ const PostCard = ({ post, currentUser, onLike, onComment, onDelete }) => {
           </div>
         </div>
 
-        {canDelete && (
+        {(canDelete || canEdit) && (
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
@@ -240,16 +408,31 @@ const PostCard = ({ post, currentUser, onLike, onComment, onDelete }) => {
             </button>
             {showMenu && (
               <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border py-1 z-10">
-                <button
-                  onClick={() => {
-                    onDelete(post._id)
-                    setShowMenu(false)
-                  }}
-                  className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
-                </button>
+                {canEdit && (
+                  <button
+                    onClick={() => {
+                      setIsEditing(true)
+                      setEditText(post.text)
+                      setShowMenu(false)
+                    }}
+                    className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Edit2 className="w-4 h-4 mr-2" />
+                    Edit
+                  </button>
+                )}
+                {canDelete && (
+                  <button
+                    onClick={() => {
+                      onDelete(post._id)
+                      setShowMenu(false)
+                    }}
+                    className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -258,7 +441,43 @@ const PostCard = ({ post, currentUser, onLike, onComment, onDelete }) => {
 
       {/* Post Content */}
       <div className="mb-4">
-        <p className="text-gray-900 leading-relaxed">{post.text}</p>
+        {isEditing ? (
+          <div className="space-y-3">
+            <textarea
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-linkedin-blue focus:border-transparent"
+              rows={3}
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setIsEditing(false)}
+                className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEditSubmit}
+                className="px-4 py-2 text-sm bg-linkedin-blue text-white rounded-lg hover:bg-blue-700"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <p className="text-gray-900 leading-relaxed">{post.text}</p>
+            {post.image && (
+              <div className="mt-3">
+                <img 
+                  src={post.image} 
+                  alt="Post" 
+                  className="rounded-lg max-h-96 w-full object-cover"
+                />
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Post Actions */}

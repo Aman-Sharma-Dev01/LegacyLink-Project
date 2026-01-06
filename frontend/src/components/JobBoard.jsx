@@ -12,30 +12,54 @@ import {
   Filter,
   Building2,
   Trash2,
-  MoreHorizontal
+  MoreHorizontal,
+  Loader2
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const JobBoard = () => {
   const [jobs, setJobs] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState('All')
+  const [pagination, setPagination] = useState({ page: 1, hasMore: true })
   const { user, isAlumni } = useAuth()
 
   useEffect(() => {
     fetchJobs()
   }, [])
 
-  const fetchJobs = async () => {
+  const fetchJobs = async (page = 1, filters = {}) => {
     try {
-      const response = await jobsAPI.getAll()
-      setJobs(response.data)
+      if (page === 1) setLoading(true)
+      else setLoadingMore(true)
+      
+      const params = { page, limit: 10, ...filters }
+      const response = await jobsAPI.getAll(params)
+      const { jobs: newJobs, pagination: paginationData } = response.data
+      
+      if (page === 1) {
+        setJobs(newJobs)
+      } else {
+        setJobs(prev => [...prev, ...newJobs])
+      }
+      setPagination({
+        page: paginationData.page,
+        hasMore: paginationData.hasMore
+      })
     } catch (error) {
       console.error('Error fetching jobs:', error)
     } finally {
       setLoading(false)
+      setLoadingMore(false)
+    }
+  }
+
+  const loadMore = () => {
+    if (!loadingMore && pagination.hasMore) {
+      fetchJobs(pagination.page + 1)
     }
   }
 
@@ -191,6 +215,26 @@ const JobBoard = () => {
           ))}
         </AnimatePresence>
       </div>
+
+      {/* Load More Button */}
+      {pagination.hasMore && filteredJobs.length > 0 && !searchTerm && filterType === 'All' && (
+        <div className="text-center py-4">
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="btn-secondary px-6 py-2 disabled:opacity-50"
+          >
+            {loadingMore ? (
+              <span className="flex items-center justify-center">
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Loading...
+              </span>
+            ) : (
+              'Load More Jobs'
+            )}
+          </button>
+        </div>
+      )}
 
       {filteredJobs.length === 0 && (
         <div className="text-center py-12">

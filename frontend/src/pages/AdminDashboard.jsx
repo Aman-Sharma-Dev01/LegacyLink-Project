@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { adminAPI, eventAPI } from '../services/api'
 import {
   Users, UserCheck, UserX, Clock, Search, Filter,
-  Mail, Calendar, ArrowLeft, PlusCircle, Trash2, Edit3
+  Mail, Calendar, ArrowLeft, PlusCircle, Trash2, Edit3, MapPin, Eye, CalendarDays, BarChart3
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
@@ -51,74 +51,106 @@ const EventModal = ({ isOpen, onClose, onSubmit, initialData }) => {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-xl w-full max-w-lg shadow-lg">
-        <h2 className="text-xl font-semibold mb-4">
-          {initialData ? 'Edit Event' : 'Create Event'}
+    <motion.div 
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      <motion.div 
+        className="bg-white p-6 rounded-xl w-full max-w-lg shadow-xl"
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+      >
+        <h2 className="text-xl font-bold mb-6 text-gray-900">
+          {initialData ? '✏️ Edit Event' : '🎉 Create New Event'}
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            type="text"
-            placeholder="Event Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            className="w-full border p-2 rounded"
-          />
-          <textarea
-            placeholder="Event Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            className="w-full border p-2 rounded"
-          />
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required
-            className="w-full border p-2 rounded"
-          />
-          <input
-            type="text"
-            placeholder="Location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            required
-            className="w-full border p-2 rounded"
-          />
-          <select
-            value={visibility}
-            onChange={(e) => setVisibility(e.target.value)}
-            className="w-full border p-2 rounded"
-          >
-            <option value="Alumni_Only">Alumni Only</option>
-            <option value="All">All</option>
-          </select>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImage(e.target.files[0])}
-            className="w-full border p-2 rounded"
-          />
-          <div className="flex justify-end gap-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Event Title *</label>
+            <input
+              type="text"
+              placeholder="Enter event title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+            <textarea
+              placeholder="Describe your event..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              rows={3}
+              className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+                className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Visibility *</label>
+              <select
+                value={visibility}
+                onChange={(e) => setVisibility(e.target.value)}
+                className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white"
+              >
+                <option value="Alumni_Only">Alumni Only</option>
+                <option value="All">Everyone</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Location *</label>
+            <input
+              type="text"
+              placeholder="Enter event location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              required
+              className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Event Image (optional)</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImage(e.target.files[0])}
+              className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            />
+            {initialData?.image && !image && (
+              <p className="text-sm text-gray-500 mt-1">Current image will be kept if no new image is selected</p>
+            )}
+          </div>
+          <div className="flex justify-end gap-3 pt-4 border-t">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-300 rounded"
+              className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded"
+              className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
             >
-              {initialData ? 'Update' : 'Create'}
+              {initialData ? 'Update Event' : 'Create Event'}
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
@@ -188,12 +220,24 @@ const AdminDashboard = () => {
     { title: 'Admins', value: unverifiedUsers.filter(u => u.role === 'Institute_Admin').length, icon: <UserX className="w-6 h-6" />, color: 'bg-purple-100 text-purple-600' },
   ]
 
+  // Event stats
+  const upcomingEvents = events.filter(ev => new Date(ev.date) >= new Date()).length
+  const pastEvents = events.filter(ev => new Date(ev.date) < new Date()).length
+  const totalAttendees = events.reduce((sum, ev) => sum + (ev.attendees?.length || 0), 0)
+
+  const eventStats = [
+    { title: 'Total Events', value: events.length, icon: <CalendarDays className="w-6 h-6" />, color: 'bg-indigo-100 text-indigo-600' },
+    { title: 'Upcoming', value: upcomingEvents, icon: <Clock className="w-6 h-6" />, color: 'bg-green-100 text-green-600' },
+    { title: 'Past Events', value: pastEvents, icon: <Calendar className="w-6 h-6" />, color: 'bg-gray-100 text-gray-600' },
+    { title: 'Total RSVPs', value: totalAttendees, icon: <Users className="w-6 h-6" />, color: 'bg-blue-100 text-blue-600' },
+  ]
+
   // -------- EVENTS MANAGEMENT --------
   const fetchEvents = async () => {
     setLoading(true)
     try {
-      const response = await eventAPI.getAll()
-      setEvents(response.data)
+      const response = await eventAPI.getAll({ limit: 100 })
+      setEvents(response.data.events || [])
     } catch (error) {
       console.error('Error fetching events:', error)
     } finally {
@@ -215,42 +259,52 @@ const AdminDashboard = () => {
       fetchEvents()
     } catch (error) {
       console.error('Error saving event:', error)
+      toast.error(error.response?.data?.message || 'Failed to save event')
     }
   }
 
   const handleDeleteEvent = async (eventId) => {
+    if (!window.confirm('Are you sure you want to delete this event?')) return
     try {
       await eventAPI.delete(eventId)
       setEvents(prev => prev.filter(ev => ev._id !== eventId))
       toast.success('Event deleted successfully!')
     } catch (error) {
       console.error('Error deleting event:', error)
+      toast.error(error.response?.data?.message || 'Failed to delete event')
     }
   }
 
   // -------- LOADING STATE --------
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600 animate-pulse">Loading...</div>
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center transition-colors">
+        <div className="text-gray-600 dark:text-slate-400 animate-pulse">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white dark:bg-slate-800 shadow-sm border-b dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link to="/dashboard" className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors">
+            <Link to="/dashboard" className="flex items-center space-x-2 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors">
               <ArrowLeft className="w-5 h-5" />
               <span>Back to Dashboard</span>
             </Link>
-            <div className="h-6 w-px bg-gray-300"></div>
-            <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+            <div className="h-6 w-px bg-gray-300 dark:bg-slate-600"></div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
           </div>
           <div className="flex items-center space-x-3">
+            <Link
+              to="/admin/analytics"
+              className="btn-secondary flex items-center gap-2 text-sm py-2"
+            >
+              <BarChart3 className="w-4 h-4" />
+              <span>Analytics</span>
+            </Link>
             <div className="w-10 h-10 bg-linkedin-blue rounded-full flex items-center justify-center">
               <span className="text-white font-semibold text-sm">
                 {user?.name?.charAt(0)?.toUpperCase()}
@@ -343,7 +397,22 @@ const AdminDashboard = () => {
           </>
         ) : (
           <>
-            {/* Events Section */}
+            {/* Event Stats */}
+            <motion.div className="grid grid-cols-1 md:grid-cols-4 gap-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+              {eventStats.map((stat, index) => (
+                <div key={index} className="card p-6 hover-lift">
+                  <div className="flex items-center space-x-4">
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${stat.color}`}>{stat.icon}</div>
+                    <div>
+                      <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                      <div className="text-sm text-gray-600">{stat.title}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+
+            {/* Events Header */}
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">Manage Events</h2>
               <button
@@ -355,31 +424,76 @@ const AdminDashboard = () => {
               </button>
             </div>
 
+            {/* Event Cards */}
             <div className="space-y-4">
               {events.length === 0 ? (
-                <div className="card p-12 text-center text-gray-500">No events found.</div>
+                <div className="card p-12 text-center text-gray-500">
+                  <CalendarDays className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                  <p>No events found. Create your first event!</p>
+                </div>
               ) : (
                 events.map((ev) => (
-                  <motion.div key={ev._id} className="card p-6 flex items-center justify-between" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                    <div>
-                      <h3 className="text-lg font-semibold">{ev.title}</h3>
-                      <p className="text-sm text-gray-600">{new Date(ev.date).toLocaleDateString()}</p>
-                    </div>
-                    <div className="flex space-x-3">
-                      <button
-                        onClick={() => { setIsModalOpen(true); setEditEvent(ev) }}
-                        className="btn-secondary flex items-center space-x-1"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                        <span>Edit</span>
-                      </button>
-                      <button
-                        onClick={() => handleDeleteEvent(ev._id)}
-                        className="btn-danger flex items-center space-x-1"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        <span>Delete</span>
-                      </button>
+                  <motion.div key={ev._id} className="card overflow-hidden" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                    <div className="flex">
+                      {/* Event Image */}
+                      {ev.image && (
+                        <div className="w-48 h-32 flex-shrink-0">
+                          <img src={ev.image} alt={ev.title} className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      {/* Event Details */}
+                      <div className="flex-1 p-6 flex items-center justify-between">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-3">
+                            <h3 className="text-lg font-semibold">{ev.title}</h3>
+                            <span className={`px-2 py-0.5 text-xs rounded-full ${
+                              new Date(ev.date) >= new Date() 
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-gray-100 text-gray-600'
+                            }`}>
+                              {new Date(ev.date) >= new Date() ? 'Upcoming' : 'Past'}
+                            </span>
+                            <span className={`px-2 py-0.5 text-xs rounded-full ${
+                              ev.visibility === 'All' 
+                                ? 'bg-blue-100 text-blue-700' 
+                                : 'bg-purple-100 text-purple-700'
+                            }`}>
+                              {ev.visibility === 'All' ? 'Public' : 'Alumni Only'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 line-clamp-1">{ev.description}</p>
+                          <div className="flex items-center gap-4 text-sm text-gray-500">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-4 h-4" />
+                              <span>{new Date(ev.date).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-4 h-4" />
+                              <span>{ev.location}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Users className="w-4 h-4" />
+                              <span>{ev.attendees?.length || 0} RSVPs</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex space-x-3 ml-4">
+                          <button
+                            onClick={() => { setIsModalOpen(true); setEditEvent(ev) }}
+                            className="btn-secondary flex items-center space-x-1"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteEvent(ev._id)}
+                            className="btn-danger flex items-center space-x-1"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </motion.div>
                 ))
