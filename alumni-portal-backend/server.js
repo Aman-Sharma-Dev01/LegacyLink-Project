@@ -31,6 +31,15 @@ connectDB();
 
 const app = express();
 
+// Configure Express 'trust proxy' when running behind a reverse proxy/load balancer.
+// This is required so middleware like express-rate-limit can correctly read
+// the client IP from the X-Forwarded-For header.
+if (process.env.TRUST_PROXY) {
+  const value = process.env.TRUST_PROXY === 'true' ? 1 : Number(process.env.TRUST_PROXY);
+  app.set('trust proxy', value);
+  console.log(`ℹ️  Express trust proxy set to: ${value}`);
+}
+
 // Create HTTP server for Socket.io
 const server = http.createServer(app);
 

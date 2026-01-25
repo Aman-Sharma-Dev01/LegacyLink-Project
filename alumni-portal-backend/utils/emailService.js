@@ -5,9 +5,22 @@
 
 const nodemailer = require('nodemailer');
 
-// Create transporter (configure based on environment)
+// Create transporter (configure based on environment or explicit SMTP vars)
 const createTransporter = () => {
-  // For production, use actual SMTP settings
+  // If SMTP credentials are provided, prefer them regardless of NODE_ENV
+  if (process.env.SMTP_USER) {
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+  }
+
+  // For production fallback (no SMTP_USER configured)
   if (process.env.NODE_ENV === 'production') {
     return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -19,7 +32,7 @@ const createTransporter = () => {
       },
     });
   }
-  
+
   // For development, use Ethereal (fake SMTP service)
   return nodemailer.createTransport({
     host: 'smtp.ethereal.email',
